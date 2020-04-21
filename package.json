@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/Argetlami/sssf-project/issues"
   },
-  "homepage": "https://github.com/Argetlami/sssf-project#readme"
+  "homepage": "https://github.com/Argetlami/sssf-project#readme",
+  "dependencies": {
+    "socket.io": "^2.3.0"
+  }
 }

@@ -2,14 +2,16 @@
 
 const socket = io();
 
-document.querySelector("form").addEventListener("submit", (event) => {
+document.getElementById("messageform").addEventListener("submit", (event) => {
   event.preventDefault();
-  let user = document.getElementById("nickname").value;
-  if (user == "") {
-    user = "anonymous";
-  }
-  let channel = document.getElementById("channel").textContent;
-  const inp = document.getElementById("m");
+  // let user = document.getElementById("nickname").value;
+  let user = 'testuser';
+  // if (user == "") {
+  //   user = "anonymous";
+  // }
+  // let channel = document.getElementById("channel").textContent;
+  let channel = "";
+  const inp = document.getElementById("message");
   if (inp.value.startsWith("/", 0)) {
     socket.emit("command", inp.value, channel);
   } else {
@@ -18,9 +20,9 @@ document.querySelector("form").addEventListener("submit", (event) => {
   inp.value = "";
 });
 
-let updateChannel = (channel) => {
-  document.getElementById("channel").innerText = channel;
-};
+// let updateChannel = (channel) => {
+//   document.getElementById("channel").innerText = channel;
+// };
 
 function serverMessage(msg) {
   socket.emit("self message", msg);
@@ -63,4 +65,4 @@ socket.on("self message", (msg) => {
   document.getElementById("messages").appendChild(item);
 });
 
-updateChannel("global");
+// updateChannel("global");
