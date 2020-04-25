@@ -4,6 +4,9 @@ const express = require("express");
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
+const graphqlHTTP = require("express-graphql");
+const MyGraphQLSchema = require("./schema/schema");
+const cors = require("cors");
 
 app.use(express.static("public"));
 
@@ -45,6 +48,14 @@ io.on("connection", (socket) => {
     console.log("selfmessage: ", msg);
     io.emit("self message", msg);
   });
+});
+
+app.use("/graphql", (req, res) => {
+  graphqlHTTP({
+    schema: MyGraphQLSchema,
+    graphiql: true,
+    context: { req, res }
+  })(req, res);
 });
 
 http.listen(3000, () => {

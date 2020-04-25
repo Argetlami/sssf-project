@@ -18,6 +18,11 @@
   },
   "homepage": "https://github.com/Argetlami/sssf-project#readme",
   "dependencies": {
+    "cors": "^2.8.5",
+    "express-graphql": "^0.9.0",
+    "graphql": "^15.0.0",
+    "mongoose": "^5.9.10",
+    "nodemon": "^2.0.3",
     "socket.io": "^2.3.0"
   }
 }
