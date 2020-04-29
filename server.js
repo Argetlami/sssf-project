@@ -1,9 +1,11 @@
 "use strict";
 
+require('dotenv').config();
 const express = require("express");
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
+const db = require("./db/db");
 const graphqlHTTP = require("express-graphql");
 const MyGraphQLSchema = require("./schema/schema");
 const cors = require("cors");

@@ -25,10 +25,10 @@ const channel = new GraphQLObjectType({
     Name: { type: GraphQLString },
     Topic: { type: GraphQLString },
     Users: {
-      type: user,
+      type: new GraphQLList(user),
       resolve: async (parent, args) => {
         try {
-          return await userModel.findById(parent.Users);
+          return await userModel.find({ _id: { $in: parent.Users } });
         } catch (e) {
           console.error("channel > Users: ", e);
           return new Error(e);
@@ -36,10 +36,10 @@ const channel = new GraphQLObjectType({
       },
     },
     Messages: {
-      type: message,
+      type: new GraphQLList(message),
       resolve: async (parent, args) => {
         try {
-          return await messageModel.findById(parent.Messages);
+          return await messageModel.find({ _id: { $in: parent.Messages } });
         } catch (e) {
           console.error("channel > Messages: ", e);
           return new Error(e);
@@ -87,10 +87,10 @@ const user = new GraphQLObjectType({
     id: { type: GraphQLID },
     Name: { type: GraphQLString },
     Channels: {
-      type: channel,
+      type: new GraphQLList(channel),
       resolve: async (parent, args) => {
         try {
-          return await channelModel.findById(parent.Channels);
+          return await channelModel.find({ _id: { $in: parent.Channels } });
         } catch (e) {
           console.error("user > Channels: ", e);
           return new Error(e);
@@ -201,7 +201,7 @@ const Mutation = new GraphQLObjectType({
       },
       resolve: async (parent, args, { req, res }) => {
         try {
-          const newChannel = new channel(args);
+          const newChannel = new channelModel(args);
           return await newChannel.save();
         } catch (e) {
           console.error("mutation > addChannel ", e);
@@ -214,7 +214,7 @@ const Mutation = new GraphQLObjectType({
       description: "Modify channel",
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
-        Name: { type: new GraphQLNonNull(GraphQLString) },
+        Name: { type: GraphQLString },
         Users: { type: new GraphQLList(GraphQLID) },
         Messages: { type: new GraphQLList(GraphQLID) },
       },
@@ -248,11 +248,11 @@ const Mutation = new GraphQLObjectType({
       type: user,
       description: "Add user",
       args: {
-        Name: { type: new GraphQLNonNull(GraphQLString) }
+        Name: { type: new GraphQLNonNull(GraphQLString) },
       },
       resolve: async (parent, args, { req, res }) => {
         try {
-          const newUser = new user(args);
+          const newUser = new userModel(args);
           return await newUser.save();
         } catch (e) {
           console.error("mutation > addUser ", e);
@@ -266,7 +266,7 @@ const Mutation = new GraphQLObjectType({
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
         Name: { type: new GraphQLNonNull(GraphQLString) },
-        Channels: { type: new GraphQLList(GraphQLID) }
+        Channels: { type: new GraphQLList(GraphQLID) },
       },
       resolve: async (parent, args, { req, res }) => {
         try {
@@ -300,11 +300,11 @@ const Mutation = new GraphQLObjectType({
       args: {
         From: { type: new GraphQLNonNull(GraphQLID) },
         To: { type: new GraphQLNonNull(GraphQLID) },
-        Content: { type: GraphQLString }
+        Content: { type: GraphQLString },
       },
       resolve: async (parent, args, { req, res }) => {
         try {
-          const newMessage = new message(args);
+          const newMessage = new messageModel(args);
           return await newMessage.save();
         } catch (e) {
           console.error("mutation > addMessage ", e);
@@ -317,7 +317,7 @@ const Mutation = new GraphQLObjectType({
       description: "Modify message",
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
-        Content: { type: GraphQLString }
+        Content: { type: GraphQLString },
       },
       resolve: async (parent, args, { req, res }) => {
         try {

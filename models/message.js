@@ -7,7 +7,7 @@ const Schema = mongoose.Schema;
 const messageSchema = new Schema({
   From: { type: Schema.Types.ObjectId, ref: "User" },
   To: { type: Schema.Types.ObjectId, ref: "Channel" },
-  TextContent: String,
+  Content: String,
 });
 
 module.exports = mongoose.model("Message", messageSchema);
