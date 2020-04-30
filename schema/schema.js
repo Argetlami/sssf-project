@@ -158,6 +158,21 @@ const RootQuery = new GraphQLObjectType({
         }
       },
     },
+    username: {
+      type: new GraphQLNonNull(user),
+      description: "Get user by id",
+      args: {
+        Name: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve: async (parent, args) => {
+        try {
+          return await userModel.find({ Name: args.Name});
+        } catch (e) {
+          console.error("root > user: ", e);
+          return new Error(e.message);
+        }
+      },
+    },
     messages: {
       type: new GraphQLNonNull(GraphQLList(message)),
       description: "Get all messages",

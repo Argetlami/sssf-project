@@ -1,6 +1,6 @@
 "use strict";
 
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const http = require("http").createServer(app);
@@ -13,16 +13,22 @@ const cors = require("cors");
 app.use(express.static("public"));
 
 io.on("connection", (socket) => {
+  // TODO: add USERNAME to DB
   console.log("a user connected", socket.id);
-  socket.join("global");
   socket.on("disconnect", () => {
+    // TODO: remove USERNAME from DB
     console.log("a user disconnected", socket.id);
   });
+
+
 
   socket.on("chat message", (user, channel, msg) => {
     if (channel == "") {
       console.log("chatmessage: " + user + ": " + msg);
-      socket.emit("self message", "You need to be in a channel to send a non-command message!");
+      socket.emit(
+        "self message",
+        "You need to be in a channel to send a non-command message!"
+      );
     } else {
       console.log("chatmessage: " + user + " @ " + channel + ": " + msg);
       io.to(channel).emit("chat message", user, channel, msg);
@@ -56,7 +62,7 @@ app.use("/graphql", (req, res) => {
   graphqlHTTP({
     schema: MyGraphQLSchema,
     graphiql: true,
-    context: { req, res }
+    context: { req, res },
   })(req, res);
 });
 

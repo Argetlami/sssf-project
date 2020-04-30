@@ -29,6 +29,51 @@
     }
   };
 
+  const getName = async () => {
+    let name;
+    const query = {
+      query: `{
+        users(Name: "${socket.id}") {
+          id
+          Name
+          Channels {
+            id
+          }
+        }
+      }
+        `,
+    };
+    const data = await fetchGraphql(query);
+    if (data.id == null){
+      setName();
+    }
+    else {
+      name = data.Name;
+    }
+    return name;
+  };
+
+  const setName = async () => {
+    let name;
+    const query = {
+      query: `mutation {
+        addUser(Name: "${socket.id}"){
+          id
+          Name
+        }
+      }
+        `,
+    };
+    const data = await fetchGraphql(query);
+    if (data.id == null){
+      setName();
+    }
+    else {
+      name = data.Name;
+    }
+    return name;
+  };
+
   // fetch messages from graphql API
   const fetchMessages = async () => {
     const query = {
@@ -55,6 +100,28 @@
     });
   };
 
+  // put messages with graphql API
+  const sendMessage = async (user, channel, content) => {
+    const query = {
+      query: `mutation {
+          addMessage(From: "${user}", To: "${channel}", Content: "${content}") {
+            id
+            From {
+              id
+            }
+            To {
+              id
+            }
+            Content
+          }
+        }
+        `,
+    };
+    const item = document.createElement("li");
+    item.innerHTML = `FRONTEND: <b>${user}</b>: ${content}`;
+    messageList.appendChild(item);
+  };
+
   messageForm.addEventListener("submit", (event) => {
     event.preventDefault();
     // let user = document.getElementById("nickname").value;
@@ -68,6 +135,7 @@
     if (inp.value.startsWith("/", 0)) {
       socket.emit("command", inp.value, channel);
     } else {
+      socket.emit("send message", user, channel, inp.value);
       socket.emit("chat message", user, channel, inp.value);
     }
     inp.value = "";
