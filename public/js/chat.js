@@ -9,6 +9,9 @@
   const messageInput = document.getElementById("message");
   const messageList = document.getElementById("messages");
 
+  // variables
+  var username = "testman";
+
   // general fetch from graphql API
   const fetchGraphql = async (query) => {
     const options = {
@@ -29,50 +32,86 @@
     }
   };
 
+  // get name of user from database
   const getName = async () => {
     let name;
     const query = {
       query: `{
-        users(Name: "${socket.id}") {
-          id
-          Name
-          Channels {
-            id
-          }
-        }
-      }
-        `,
+              username(Name: "${socket.id}") {
+                id
+                Name
+                Channels {
+                  id
+                }
+              }
+            }
+              `,
     };
-    const data = await fetchGraphql(query);
-    if (data.id == null){
-      setName();
+    try {
+      const data = await fetchGraphql(query);
+      console.log(data);
+      name = data.username.Name;
+    } catch (e) {
+      name = await setName();
     }
-    else {
-      name = data.Name;
-    }
+    console.log("getName name: " + name);
     return name;
   };
 
+  // set name of user to database
   const setName = async () => {
     let name;
     const query = {
       query: `mutation {
-        addUser(Name: "${socket.id}"){
-          id
-          Name
-        }
-      }
-        `,
+              addUser(Name: "${socket.id}"){
+                id
+                Name
+              }
+            }
+              `,
     };
     const data = await fetchGraphql(query);
-    if (data.id == null){
-      setName();
-    }
-    else {
-      name = data.Name;
-    }
+    name = data.addUser.Name;
     return name;
   };
+
+  // delete user from database
+  const delName = async () => {
+    const idquery = {
+      query: `{
+              username(Name: "${socket.id}") {
+                id
+              }
+            }
+              `,
+    };
+    const iddata = await fetchGraphql(idquery);
+    if (iddata.id == null) {
+      console.error(
+        "delName: Tried to delete " + socket.id + "but no id for it was found!"
+      );
+    } else {
+      const delquery = {
+        query: `mutation {
+                deleteUser(id: ${iddata.id}) {
+                  id
+                }
+              }
+                `,
+      };
+      await fetchGraphql(delquery);
+    }
+  };
+
+  socket.on("connection", () => {
+    console.log("socketlogic");
+    console.log("a user connected", socket.id);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("socketlogic");
+    console.log("a user disconnected", socket.id);
+  });
 
   // fetch messages from graphql API
   const fetchMessages = async () => {
@@ -95,6 +134,8 @@
     const data = await fetchGraphql(query);
     data.messages.forEach((type) => {
       const item = document.createElement("li");
+      // type from name doesnt work currently as testuser is removed
+      //item.innerHTML = `GRAPHQL_BE: <b>${type.From.Name}</b>: ${type.Content}`;
       item.innerHTML = `GRAPHQL_BE: <b>${type.From.Name}</b>: ${type.Content}`;
       messageList.appendChild(item);
     });
@@ -185,6 +226,15 @@
 
   socket.on("self message", (msg) => {
     fetchMessages();
+  });
+
+  socket.on("set user", () => {
+    username = setName();
+  });
+
+  socket.on("delete user", () => {
+    delName();
+    console.log("deleted = " + username);
   });
 
   socket.on("error message", (msg) => {

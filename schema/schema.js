@@ -166,9 +166,9 @@ const RootQuery = new GraphQLObjectType({
       },
       resolve: async (parent, args) => {
         try {
-          return await userModel.find({ Name: args.Name});
+          return await userModel.findOne({ Name: args.Name });
         } catch (e) {
-          console.error("root > user: ", e);
+          console.error("root > username: ", e);
           return new Error(e.message);
         }
       },

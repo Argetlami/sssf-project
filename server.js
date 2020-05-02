@@ -8,19 +8,18 @@ const io = require("socket.io")(http);
 const db = require("./db/db");
 const graphqlHTTP = require("express-graphql");
 const MyGraphQLSchema = require("./schema/schema");
+const socketlogic = require("./utils/socketlogic");
 const cors = require("cors");
 
 app.use(express.static("public"));
 
 io.on("connection", (socket) => {
-  // TODO: add USERNAME to DB
   console.log("a user connected", socket.id);
+  socket.emit("set user");
   socket.on("disconnect", () => {
-    // TODO: remove USERNAME from DB
+    socketlogic.delUser(socket.id);
     console.log("a user disconnected", socket.id);
   });
-
-
 
   socket.on("chat message", (user, channel, msg) => {
     if (channel == "") {
