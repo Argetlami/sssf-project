@@ -414,8 +414,10 @@
   }
 
   const joinChannel = async (channel) => {
+    channelList.innerHTML = "";
+    messageList.innerHTML = "";
+    userList.innerHTML = "";
     document.getElementById("channelsh").innerText = "Channels";
-    document.getElementById("channels").innerHTML = "";
     const channelElement = document.createElement("li");
     channelElement.innerText = channel;
     channelList.appendChild(channelElement);
@@ -430,7 +432,6 @@
     await removeUserFromChannel();
     await removeChannelFromUser();
     document.getElementById("channelsh").innerText = "";
-    document.getElementById("channels").innerHTML = "";
     currentChannelid = "";
     currentChannelname = "";
     channelList.innerHTML = "";
