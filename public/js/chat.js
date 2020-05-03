@@ -6,7 +6,7 @@
 
   // elements
   const channelList = document.getElementById("channels");
-  const userlist = document.getElementById("users");
+  const userList = document.getElementById("users");
   const messageForm = document.getElementById("messageform");
   const messageInput = document.getElementById("message");
   const messageList = document.getElementById("messages");
@@ -147,38 +147,11 @@
   });
 
   // fetch messages from graphql API
-  const fetchMessages = async () => {
-    const query = {
-      query: `{
-        messages {
-          id
-          From {
-            id
-            Name
-          }
-          To {
-            id
-          }
-          Content
-        }
-      }
-      `,
-    };
-    const data = await fetchGraphql(query);
-    data.messages.forEach((type) => {
-      const item = document.createElement("li");
-      // type from name doesnt work currently as testuser is removed
-      //item.innerHTML = `GRAPHQL_BE: <b>${type.From.Name}</b>: ${type.Content}`;
-      item.innerHTML = `GRAPHQL_BE: <b>${type.From.Name}</b>: ${type.Content}`;
-      messageList.appendChild(item);
-    });
-  };
-
-  // fetch messages from graphql API
   const fetchChannel = async () => {
-    const query = {
+    console.log("fetchChannel currentChannelid:", currentChannelid)
+    const channelquery = {
       query: `{
-        channel(id="${channel}") {
+        channel(id: "${currentChannelid}") {
           id
           Name
           Topic
@@ -187,42 +160,62 @@
           }
           Messages {
             id
+            From{
+              id
+              Name
+            }
+            Content
           }
         }
       }
         `,
     };
-    const data = await fetchGraphql(query);
-    data.messages.forEach((type) => {
+    console.log("- - fetchChannel query below - - ")
+    console.log(channelquery)
+    const data = await fetchGraphql(channelquery);
+    console.log("* * fetchChannel data below * *")
+    console.log(data)
+    data.channel.Messages.forEach((type) => {
       const item = document.createElement("li");
-      // type from name doesnt work currently as testuser is removed
-      //item.innerHTML = `GRAPHQL_BE: <b>${type.From.Name}</b>: ${type.Content}`;
-      item.innerHTML = `GRAPHQL_BE: <b>${type.From.Name}</b>: ${type.Content}`;
+      item.innerHTML = `<b>${type.From.Name}</b>: ${type.Content}`;
       messageList.appendChild(item);
     });
   };
 
-  // fetch messages from graphql API
-  const fetchChannelMessages = async () => {
-    const query = {
-      query: `{
-          channel(id="${currentChannelid}") {
+    // fetch messages from graphql API
+    const fetchNew = async () => {
+      console.log("fetchChannel currentChannelid:", currentChannelid)
+      const channelquery = {
+        query: `{
+          channel(id: "${currentChannelid}") {
+            id
+            Name
+            Topic
+            Users {
+              id
+            }
             Messages {
-              From
+              id
+              From{
+                id
+                Name
+              }
               Content
             }
           }
         }
           `,
+      };
+      console.log("- - fetchChannel query below - - ")
+      console.log(channelquery)
+      const data = await fetchGraphql(channelquery);
+      console.log("* * fetchChannel data below * *")
+      console.log(data)
+      let latest = data.channel.Messages.pop()
+        const item = document.createElement("li");
+        item.innerHTML = `<b>${latest.From.Name}</b>: ${latest.Content}`;
+        messageList.appendChild(item);
     };
-    const data = await fetchGraphql(query);
-    data.messages.forEach((type) => {
-      const item = document.createElement("li");
-      //item.innerHTML = `GRAPHQL_BE: <b>${type.From.Name}</b>: ${type.Content}`;
-      item.innerHTML = `GRAPHQL_BE: <b>${type.From.Name}</b>: ${type.Content}`;
-      messageList.appendChild(item);
-    });
-  };
 
   // create channel to database
   const addChannel = async (channelname) => {
@@ -354,7 +347,9 @@
         }
         `,
     };
-    return await fetchGraphql(query);
+    const data = await fetchGraphql(query);
+    console.log("addMessageToUser: ", data);
+    return data;
   };
 
   // create channel to database
@@ -372,11 +367,13 @@
         }
         `,
     };
-    return await fetchGraphql(query);
+    const data = await fetchGraphql(query);
+    console.log("addMessageToChannel: ", data);
+    return data;
   };
 
   // put messages with graphql API
-  const sendMessage = async (messagecontent) => {
+  const addMessage = async (messagecontent) => {
     const query = {
       query: `mutation {
         addMessage(From: "${userid}", To: "${currentChannelid}", Content: "${messagecontent}") {
@@ -393,8 +390,8 @@
         `,
     };
     const data = await fetchGraphql(query);
-    addMessageToUser(data.addMessage.id);
-    addMessageToChannel(data.addMessage.id);
+    console.log("addMessage: ", data);
+    return data.addMessage.id;
   };
 
   messageForm.addEventListener("submit", (event) => {
@@ -408,8 +405,6 @@
       );
     } else {
       sendMessage(inp.value);
-      socket.emit("send message", username, currentChannelname, inp.value);
-      socket.emit("chat message", username, currentChannelname, inp.value);
     }
     inp.value = "";
   });
@@ -419,21 +414,16 @@
   }
 
   const joinChannel = async (channel) => {
-    console.log(userid);
     document.getElementById("channelsh").innerText = "Channels";
     document.getElementById("channels").innerHTML = "";
     const channelElement = document.createElement("li");
     channelElement.innerText = channel;
     channelList.appendChild(channelElement);
     currentChannelid = await getChannelid(channel);
-    console.log(userid);
-    console.log("currentChannelID: ", currentChannelid)
-    console.log(userid);
     currentChannelname = channel;
     await addUserToChannel();
-    console.log(userid);
     await addChannelToUser();
-    console.log(userid);
+    await fetchChannel();
   };
 
   const leaveChannel = async () => {
@@ -443,6 +433,9 @@
     document.getElementById("channels").innerHTML = "";
     currentChannelid = "";
     currentChannelname = "";
+    channelList.innerHTML = "";
+    messageList.innerHTML = "";
+    userList.innerHTML = "";
   };
 
   const setOwnName = async () => {
@@ -450,6 +443,15 @@
     userid = await getUserId();
     console.log("username: ", username)
     console.log("userid: ", userid)
+  }
+
+  const sendMessage = async (content) => {
+    console.log("sendMessage content:",content)
+    const messageid = await addMessage(content);
+    await addMessageToUser(messageid);
+    await addMessageToChannel(messageid);
+    socket.emit("send message", username, currentChannelname, content);
+    socket.emit("chat message", username, currentChannelname, content);
   }
 
   socket.on("command", (msg) => {
@@ -461,7 +463,7 @@
     } else if (msg.startsWith("/leave")) {
       socket.emit("leave", username, currentChannelname);
       leaveChannel();
-    } else if (msg.startsWith("/help ")) {
+    } else if (msg.startsWith("/help")) {
       serverMessage(
         "<b><u>COMMANDS</u></b></br>" +
           "<tt>/join channelname</tt> join a channel</br>" +
@@ -477,7 +479,7 @@
   });
 
   socket.on("chat message", (user, channel, msg) => {
-    fetchMessages();
+    fetchNew();
   });
 
   socket.on("self message", (msg) => {
@@ -500,6 +502,4 @@
     item.innerHTML = msg;
     messageList.appendChild(item);
   });
-
-  // updateChannel("global");
 })();

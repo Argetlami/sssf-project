@@ -13,11 +13,25 @@ const cors = require("cors");
 
 app.use(express.static("public"));
 
+const makeid = (length) => {
+  var result           = '';
+  var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  var charactersLength = characters.length;
+  for ( var i = 0; i < length; i++ ) {
+     result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
+io.engine.generateId = (req) => {
+  return "anon" + makeid(6); // custom id with "anonXXXXXX" syntax
+}
+
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
   socket.emit("set user");
   socket.on("disconnect", () => {
-    socketlogic.delUser(socket.id);
+    //socketlogic.delUser(socket.id);
     console.log("a user disconnected", socket.id);
   });
 
@@ -51,7 +65,7 @@ io.on("connection", (socket) => {
 
   socket.on("self message", (msg) => {
     console.log("selfmessage: ", msg);
-    io.emit("self message", msg);
+    socket.emit("self message", msg);
   });
 });
 
