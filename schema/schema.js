@@ -131,6 +131,21 @@ const RootQuery = new GraphQLObjectType({
         }
       },
     },
+    channelname: {
+      type: new GraphQLNonNull(channel),
+      description: "Get channel by name",
+      args: {
+        Name: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve: async (parent, args) => {
+        try {
+          return await channelModel.findOne({ Name: args.Name });
+        } catch (e) {
+          console.error("root > username: ", e);
+          return new Error(e.message);
+        }
+      },
+    },
     users: {
       type: new GraphQLNonNull(GraphQLList(user)),
       description: "Get all users",
@@ -160,7 +175,7 @@ const RootQuery = new GraphQLObjectType({
     },
     username: {
       type: new GraphQLNonNull(user),
-      description: "Get user by id",
+      description: "Get user by name",
       args: {
         Name: { type: new GraphQLNonNull(GraphQLString) },
       },
@@ -244,6 +259,66 @@ const Mutation = new GraphQLObjectType({
         }
       },
     },
+    addUserToChannel: {
+      type: channel,
+      description: "Add an user to the channel",
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLID) },
+        User: { type: new GraphQLNonNull(GraphQLID) },
+      },
+      resolve: async (parent, args, { req, res }) => {
+        try {
+          return await channelModel.findByIdAndUpdate(
+            args.id,
+            { $push: { Users: args.User } },
+            { new: true }
+          );
+        } catch (e) {
+          console.error("mutation > addUserToChannel ", e);
+          return new Error(e.message);
+        }
+      },
+    },
+    removeUserFromChannel: {
+      type: channel,
+      description: "Remove an user from the channel",
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLID) },
+        User: { type: new GraphQLNonNull(GraphQLID) },
+      },
+      resolve: async (parent, args, { req, res }) => {
+        try {
+          return await channelModel.findByIdAndUpdate(
+            args.id,
+            { $pull: { Users: args.User } },
+            { new: true }
+          );
+        } catch (e) {
+          console.error("mutation > removeUserFromChannel ", e);
+          return new Error(e.message);
+        }
+      },
+    },
+    addMessageToChannel: {
+      type: channel,
+      description: "Add a message to the channel",
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLID) },
+        Message: { type: new GraphQLNonNull(GraphQLID) },
+      },
+      resolve: async (parent, args, { req, res }) => {
+        try {
+          return await channelModel.findByIdAndUpdate(
+            args.id,
+            { $push: { Messages: args.Message } },
+            { new: true }
+          );
+        } catch (e) {
+          console.error("mutation > addMessageToChannel ", e);
+          return new Error(e.message);
+        }
+      },
+    },
     deleteChannel: {
       type: channel,
       description: "Delete channel",
@@ -290,6 +365,86 @@ const Mutation = new GraphQLObjectType({
           });
         } catch (e) {
           console.error("mutation > modifyUser ", e);
+          return new Error(e.message);
+        }
+      },
+    },
+    addChannelToUser: {
+      type: channel,
+      description: "Add a channel to an user",
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLID) },
+        Channel: { type: new GraphQLNonNull(GraphQLID) },
+      },
+      resolve: async (parent, args, { req, res }) => {
+        try {
+          return await userModel.findByIdAndUpdate(
+            args.id,
+            { $push: { Channels: args.Channel } },
+            { new: true }
+          );
+        } catch (e) {
+          console.error("mutation > addChannelToUser ", e);
+          return new Error(e.message);
+        }
+      },
+    },
+    removeChannelFromUser: {
+      type: channel,
+      description: "Remove a channel from an user",
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLID) },
+        Channel: { type: new GraphQLNonNull(GraphQLID) },
+      },
+      resolve: async (parent, args, { req, res }) => {
+        try {
+          return await userModel.findByIdAndUpdate(
+            args.id,
+            { $pull: { Channels: args.Channel } },
+            { new: true }
+          );
+        } catch (e) {
+          console.error("mutation > removeChannelFromUser ", e);
+          return new Error(e.message);
+        }
+      },
+    },
+    addMessageToUser: {
+      type: channel,
+      description: "Add a message to an user",
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLID) },
+        Message: { type: new GraphQLNonNull(GraphQLID) },
+      },
+      resolve: async (parent, args, { req, res }) => {
+        try {
+          return await userModel.findByIdAndUpdate(
+            args.id,
+            { $push: { Messages: args.Message } },
+            { new: true }
+          );
+        } catch (e) {
+          console.error("mutation > addMessageToUser ", e);
+          return new Error(e.message);
+        }
+      },
+    },
+    removeMessageFromUser: {
+      type: channel,
+      description: "Remove a message from an user",
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLID) },
+        Channel: { type: new GraphQLNonNull(GraphQLID) },
+      },
+      resolve: async (parent, args, { req, res }) => {
+        try {
+          return await userModel.findByIdAndUpdate(
+            args.id,
+            { $pull: { Messages: args.Message } },
+            { new: true }
+          );
+        } catch (e) {
+          console.error("mutation > removeMessageFromUser ", e);
           return new Error(e.message);
         }
       },
