@@ -429,7 +429,7 @@
   const encodeImageAndSend = (element) => {
     const reader = new FileReader();
     reader.onloadend = () => {
-      console.log(reader.result)
+      console.log(reader.result);
       if (reader.result.startsWith("data:image")) {
         imageMessage(reader.result);
       } else {
@@ -455,17 +455,17 @@
       if (messageInput.value != "") {
         sendMessage(messageInput.value);
       } else {
-        serverMessage("Please dont send messages without content");
+        serverMessage(`Please don't send messages without content`);
       }
     }
     fileInput.value = "";
     messageInput.value = "";
   });
 
- serverMessage = (msg) => {
+  const serverMessage = (msg) => {
     msg = `<b>SERVER</b>: ${msg}`;
     socket.emit("self message", msg);
-  }
+  };
 
   const joinChannel = async (channel) => {
     channelList.innerHTML = "";
@@ -533,8 +533,9 @@
         serverMessage("Please /leave from this channel before joining another");
       }
     } else if (msg.startsWith("/leave")) {
+      const oldchannel = currentChannelname
       await leaveChannel();
-      socket.emit("leave", username, currentChannelname);
+      socket.emit("leave", username, oldchannel);
     } else if (msg.startsWith("/help")) {
       serverMessage(
         "<b><u>COMMANDS</u></b></br>" +

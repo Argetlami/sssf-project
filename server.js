@@ -10,6 +10,10 @@ const graphqlHTTP = require("express-graphql");
 const MyGraphQLSchema = require("./schema/schema");
 const socketlogic = require("./utils/socketlogic");
 const cors = require("cors");
+const helmet = require('helmet');
+
+app.use(cors());
+app.use(helmet());
 
 app.use(express.static("public"));
 
@@ -23,15 +27,18 @@ const makeid = (length) => {
   return result;
 }
 
+// custom id with "anonXXXXXX" syntax
 io.engine.generateId = (req) => {
-  return "anon" + makeid(6); // custom id with "anonXXXXXX" syntax
+  return "anon" + makeid(6);
 }
 
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
   socket.emit("set user");
-  socket.on("disconnect", () => {
+  socket.on("disconnect", async () => {
     //socketlogic.delUser(socket.id);
+    await socketlogic.removeUserFromChannel(socket.id);
+    await socketlogic.removeChannelFromUser(socket.id);
     io.emit("userlist change");
     console.log("a user disconnected", socket.id);
   });
