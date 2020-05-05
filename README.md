@@ -11,9 +11,10 @@ As this is a school project, a loosely predefined set of tools were used. The au
 ### Features
 
 - Real time messaging powered by [socket.io](https://socket.io/)
-- A persistent [MongoDB](https://www.mongodb.com/) database with [Mongoose](https://mongoosejs.com/) connections and schemas
-- a [GraphQL](https://graphql.org/) API and schemas for the front-end connectivity to the database
+- A persistent [MongoDB](https://www.mongodb.com/) database with overly complicated [Mongoose](https://mongoosejs.com/) connections and schemas
+- an overdone [GraphQL](https://graphql.org/) API and schemas for the front-end connectivity to the database, can also be used separately as an API
 - Basic [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) and [Helmet](https://helmetjs.github.io/) security implementations
+- Adaptive and responsive, yet simple [Bootstrap](https://getbootstrap.com/) front-end
 
 ### Missing features and current set of problems
 
@@ -60,7 +61,7 @@ $ node server.js
 listening on port 3000
 Database connected successfully.
 ```
-If the system prints something else, fix accordingly. The front-end can be accessed at [localhost:3000](http://localhost:3000) in a generic environment. GraphQL API can be accessed at [localhost:3000/graphql](http://localhost:3000/graphql)
+If the system prints something else, fix accordingly. The front-end can be accessed at [localhost:3000](http://localhost:3000) in a generic environment. GraphQL API can be accessed at [localhost:3000/graphql](http://localhost:3000/graphql) and it contains its own documentation there.
 
 ## License
 
