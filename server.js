@@ -32,6 +32,7 @@ io.on("connection", (socket) => {
   socket.emit("set user");
   socket.on("disconnect", () => {
     //socketlogic.delUser(socket.id);
+    io.emit("userlist change");
     console.log("a user disconnected", socket.id);
   });
 
@@ -48,14 +49,23 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("send image message", async (user, channelid, channelname, messagecontent) => {
+      console.log("sent image message: " + user + " @ " + channelname);
+      const messageid = await socketlogic.addImageMessage(user, channelid, messagecontent);
+      io.to(channelname).emit("chat message", user, channelname, messageid);
+    
+  });
+
   socket.on("join", (user, channel) => {
     console.log("user " + user + " joined channel " + channel);
     socket.join(channel);
+    io.to(channel).emit("userlist change");
   });
 
   socket.on("leave", (user, channel) => {
     console.log("user " + user + " left channel " + channel);
     socket.leave(channel);
+    io.to(channel).emit("userlist change");
   });
 
   socket.on("command", (msg) => {

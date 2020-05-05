@@ -10,10 +10,11 @@
   const messageForm = document.getElementById("messageform");
   const messageInput = document.getElementById("message");
   const messageList = document.getElementById("messages");
+  const fileInput = document.getElementById("file-input");
 
   // variables
   var username = "noname";
-  var userid = "noid"
+  var userid = "noid";
   var currentChannelid = "";
   var currentChannelname = "";
 
@@ -63,11 +64,11 @@
     return name;
   };
 
-    // get name of user from database
-    const getUserId = async () => {
-      let id;
-      const query = {
-        query: `{
+  // get name of user from database
+  const getUserId = async () => {
+    let id;
+    const query = {
+      query: `{
           username(Name: "${socket.id}") {
             id
             Name
@@ -77,18 +78,18 @@
           }
         }
                 `,
-      };
-      try {
-        const data = await fetchGraphql(query);
-        console.log("getName: ", data);
-        id = data.username.id;
-      } catch (e) {
-        await addUserName();
-        id = await getUserId()
-      }
-      console.log("getUserId id: " + id);
-      return id;
     };
+    try {
+      const data = await fetchGraphql(query);
+      console.log("getName: ", data);
+      id = data.username.id;
+    } catch (e) {
+      await addUserName();
+      id = await getUserId();
+    }
+    console.log("getUserId id: " + id);
+    return id;
+  };
 
   // set name of user to database
   const addUserName = async () => {
@@ -103,7 +104,7 @@
               `,
     };
     const data = await fetchGraphql(query);
-    name = data.addUser.Name
+    name = data.addUser.Name;
     userid = await getUserName();
     return name;
   };
@@ -136,19 +137,9 @@
     }
   };
 
-  socket.on("connection", () => {
-    console.log("socketlogic");
-    console.log("a user connected", socket.id);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("socketlogic");
-    console.log("a user disconnected", socket.id);
-  });
-
   // fetch messages from graphql API
   const fetchChannel = async () => {
-    console.log("fetchChannel currentChannelid:", currentChannelid)
+    console.log("fetchChannel currentChannelid:", currentChannelid);
     const channelquery = {
       query: `{
         channel(id: "${currentChannelid}") {
@@ -170,52 +161,83 @@
       }
         `,
     };
-    console.log("- - fetchChannel query below - - ")
-    console.log(channelquery)
+    console.log("- - fetchChannel query below - - ");
+    console.log(channelquery);
     const data = await fetchGraphql(channelquery);
-    console.log("* * fetchChannel data below * *")
-    console.log(data)
+    console.log("* * fetchChannel data below * *");
+    console.log(data);
     data.channel.Messages.forEach((type) => {
       const item = document.createElement("li");
-      item.innerHTML = `<b>${type.From.Name}</b>: ${type.Content}`;
+      if (type.Content.startsWith("data:image")) {
+        item.innerHTML = `<b>${type.From.Name}</b>: <img src="${type.Content}" alt="image sent by ${type.From.Name}" width="70%"/>`;
+      } else {
+        item.innerHTML = `<b>${type.From.Name}</b>: ${type.Content}`;
+      }
       messageList.appendChild(item);
     });
   };
 
-    // fetch messages from graphql API
-    const fetchNew = async () => {
-      console.log("fetchChannel currentChannelid:", currentChannelid)
-      const channelquery = {
-        query: `{
-          channel(id: "${currentChannelid}") {
+  // fetch messages from graphql API
+  const fetchNew = async () => {
+    console.log("fetchChannel currentChannelid:", currentChannelid);
+    const channelquery = {
+      query: `{
+        channel(id: "${currentChannelid}") {
+          id
+          Name
+          Topic
+          Users {
             id
-            Name
-            Topic
-            Users {
+          }
+          Messages {
+            id
+            From{
               id
+              Name
             }
-            Messages {
-              id
-              From{
-                id
-                Name
-              }
-              Content
-            }
+            Content
           }
         }
-          `,
-      };
-      console.log("- - fetchChannel query below - - ")
-      console.log(channelquery)
-      const data = await fetchGraphql(channelquery);
-      console.log("* * fetchChannel data below * *")
-      console.log(data)
-      let latest = data.channel.Messages.pop()
-        const item = document.createElement("li");
-        item.innerHTML = `<b>${latest.From.Name}</b>: ${latest.Content}`;
-        messageList.appendChild(item);
+      }
+      `,
     };
+    console.log("- - fetchChannel query below - - ");
+    console.log(channelquery);
+    const data = await fetchGraphql(channelquery);
+    console.log("* * fetchChannel data below * *");
+    console.log(data);
+    let latest = data.channel.Messages.pop();
+    const item = document.createElement("li");
+    if (latest.Content.startsWith("data:image")) {
+      item.innerHTML = `<b>${latest.From.Name}</b>: <img src="${latest.Content}" alt="image sent by ${latest.From.Name}" width="70%"/>`;
+    } else {
+      item.innerHTML = `<b>${latest.From.Name}</b>: ${latest.Content}`;
+    }
+    messageList.appendChild(item);
+  };
+
+  // fetch messages from graphql API
+  const fetchUsers = async () => {
+    const channelquery = {
+      query: `{
+        channel(id: "${currentChannelid}") {
+          id
+          Users {
+            id
+            Name
+          }
+        }
+      }
+      `,
+    };
+    const data = await fetchGraphql(channelquery);
+    userList.innerHTML = "";
+    data.channel.Users.forEach((type) => {
+      const item = document.createElement("li");
+      item.innerHTML = `${type.Name}`;
+      userList.appendChild(item);
+    });
+  };
 
   // create channel to database
   const addChannel = async (channelname) => {
@@ -231,7 +253,7 @@
     const data = await fetchGraphql(query);
     console.log("addChannel: ", data.addChannel);
     channelid = data.addChannel.id;
-    console.log("channelid in addChannel(): ", channelid)
+    console.log("channelid in addChannel(): ", channelid);
     return channelid;
   };
 
@@ -312,7 +334,7 @@
     console.log(query);
     const data = await fetchGraphql(query);
     console.log("addChannelToUser: ", data);
-    return data
+    return data;
   };
 
   // create channel to database
@@ -394,22 +416,54 @@
     return data.addMessage.id;
   };
 
+  const fileSizeValidation = () => {
+    console.log("fileInput", fileInput.files[0]);
+    const file = fileInput.files[0];
+    if (file.size > 10485760) {
+      alert("file must be select < 10 MB");
+      return false;
+    }
+    return true;
+  };
+
+  const encodeImageAndSend = (element) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      console.log(reader.result)
+      if (reader.result.startsWith("data:image")) {
+        imageMessage(reader.result);
+      } else {
+        alert("Only image uploads are currently allowed!");
+      }
+    };
+    const file = reader.readAsDataURL(element.files[0]);
+  };
+
   messageForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    const inp = messageInput;
-    if (inp.value.startsWith("/", 0)) {
-      socket.emit("command", inp.value);
+    if (messageInput.value.startsWith("/", 0)) {
+      socket.emit("command", messageInput.value);
     } else if (currentChannelid == "") {
       serverMessage(
         "You need to be in a channel to send a non-command message!"
       );
+    } else if (fileInput.value != "") {
+      if (fileSizeValidation()) {
+        encodeImageAndSend(fileInput);
+      }
     } else {
-      sendMessage(inp.value);
+      if (messageInput.value != "") {
+        sendMessage(messageInput.value);
+      } else {
+        serverMessage("Please dont send messages without content");
+      }
     }
-    inp.value = "";
+    fileInput.value = "";
+    messageInput.value = "";
   });
 
-  function serverMessage(msg) {
+ serverMessage = (msg) => {
+    msg = `<b>SERVER</b>: ${msg}`;
     socket.emit("self message", msg);
   }
 
@@ -418,6 +472,7 @@
     messageList.innerHTML = "";
     userList.innerHTML = "";
     document.getElementById("channelsh").innerText = "Channels";
+    document.getElementById("usersh").innerText = "Users";
     const channelElement = document.createElement("li");
     channelElement.innerText = channel;
     channelList.appendChild(channelElement);
@@ -426,12 +481,14 @@
     await addUserToChannel();
     await addChannelToUser();
     await fetchChannel();
+    await fetchUsers();
   };
 
   const leaveChannel = async () => {
     await removeUserFromChannel();
     await removeChannelFromUser();
     document.getElementById("channelsh").innerText = "";
+    document.getElementById("usersh").innerText = "";
     currentChannelid = "";
     currentChannelname = "";
     channelList.innerHTML = "";
@@ -442,28 +499,42 @@
   const setOwnName = async () => {
     username = await addUserName();
     userid = await getUserId();
-    console.log("username: ", username)
-    console.log("userid: ", userid)
-  }
+    console.log("username: ", username);
+    console.log("userid: ", userid);
+  };
 
   const sendMessage = async (content) => {
-    console.log("sendMessage content:",content)
+    console.log("sendMessage content:", content);
     const messageid = await addMessage(content);
     await addMessageToUser(messageid);
     await addMessageToChannel(messageid);
     socket.emit("send message", username, currentChannelname, content);
-    socket.emit("chat message", username, currentChannelname, content);
-  }
+  };
 
-  socket.on("command", (msg) => {
+  const imageMessage = async (messagecontent) => {
+    socket.emit(
+      "send image message",
+      userid,
+      currentChannelid,
+      currentChannelname,
+      messagecontent
+    );
+    socket.emit("chat message", userid, currentChannelid, messagecontent);
+  };
+
+  socket.on("command", async (msg) => {
     console.log("command issued: " + msg);
     if (msg.startsWith("/join ")) {
-      let newchannel = msg.replace("/join ", "");
-      socket.emit("join", username, newchannel);
-      joinChannel(newchannel);
+      if (currentChannelid == "") {
+        let newchannel = msg.replace("/join ", "");
+        await joinChannel(newchannel);
+        socket.emit("join", username, newchannel);
+      } else {
+        serverMessage("Please /leave from this channel before joining another");
+      }
     } else if (msg.startsWith("/leave")) {
+      await leaveChannel();
       socket.emit("leave", username, currentChannelname);
-      leaveChannel();
     } else if (msg.startsWith("/help")) {
       serverMessage(
         "<b><u>COMMANDS</u></b></br>" +
@@ -480,6 +551,7 @@
   });
 
   socket.on("chat message", (user, channel, msg) => {
+    console.log("fetching new message");
     fetchNew();
   });
 
@@ -496,6 +568,12 @@
   socket.on("delete user", () => {
     delName();
     console.log("deleted = " + username);
+  });
+
+  socket.on("userlist change", () => {
+    if (currentChannelid != "") {
+      fetchUsers();
+    }
   });
 
   socket.on("error message", (msg) => {

@@ -74,6 +74,7 @@ h4 {
     list-style-type: none;
     margin: 0;
     padding: 0;
+    text-align: right;
   }
   #users li {
     padding: 5px 10px;

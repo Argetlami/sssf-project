@@ -106,7 +106,7 @@
             <div class="input-group-append">
                 <button onclick="document.getElementById('file-input').click();" type="button"
                 class="btn btn-secondary"><span class="fas fa-paperclip"></span>
-                <input id="file-input" type="file" name="file-input" style="display: none;" />
+                <input id="file-input" type="file" onchange="document.getElementById('submit').click();" name="file-input" style="display: none;" />
             </button>
                 <button id="submit" class="btn btn-dark" type="submit"><span class="fas fa-paper-plane">
                         Send</span></button>
