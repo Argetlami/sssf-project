@@ -1,14 +1,12 @@
+// sorry
+
 "use strict";
 
 const {
   GraphQLObjectType,
-  GraphQLInputObjectType,
   GraphQLID,
   GraphQLString,
   GraphQLList,
-  GraphQLInt,
-  GraphQLFloat,
-  GraphQLBoolean,
   GraphQLSchema,
   GraphQLNonNull,
 } = require("graphql");
@@ -19,7 +17,7 @@ const userModel = require("../models/user");
 
 const channel = new GraphQLObjectType({
   name: "channel",
-  description: "Channel",
+  description: "Channel object",
   fields: () => ({
     id: { type: GraphQLID },
     Name: { type: GraphQLString },
@@ -51,7 +49,7 @@ const channel = new GraphQLObjectType({
 
 const message = new GraphQLObjectType({
   name: "message",
-  description: "Message",
+  description: "Message object",
   fields: () => ({
     id: { type: GraphQLID },
     From: {
@@ -82,7 +80,7 @@ const message = new GraphQLObjectType({
 
 const user = new GraphQLObjectType({
   name: "user",
-  description: "User",
+  description: "User object",
   fields: () => ({
     id: { type: GraphQLID },
     Name: { type: GraphQLString },
@@ -118,7 +116,7 @@ const RootQuery = new GraphQLObjectType({
     },
     channel: {
       type: new GraphQLNonNull(channel),
-      description: "Get channel by id",
+      description: "Get a channel by id",
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
       },
@@ -133,7 +131,7 @@ const RootQuery = new GraphQLObjectType({
     },
     channelname: {
       type: new GraphQLNonNull(channel),
-      description: "Get channel by name",
+      description: "Get channel by its name",
       args: {
         Name: { type: new GraphQLNonNull(GraphQLString) },
       },
@@ -141,7 +139,7 @@ const RootQuery = new GraphQLObjectType({
         try {
           return await channelModel.findOne({ Name: args.Name });
         } catch (e) {
-          console.error("root > username: ", e);
+          console.error("root > channelname: ", e);
           return new Error(e.message);
         }
       },
@@ -160,7 +158,7 @@ const RootQuery = new GraphQLObjectType({
     },
     user: {
       type: new GraphQLNonNull(user),
-      description: "Get user by id",
+      description: "Get an user by id",
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
       },
@@ -175,7 +173,7 @@ const RootQuery = new GraphQLObjectType({
     },
     username: {
       type: new GraphQLNonNull(user),
-      description: "Get user by name",
+      description: "Get user by its name",
       args: {
         Name: { type: new GraphQLNonNull(GraphQLString) },
       },
@@ -202,7 +200,7 @@ const RootQuery = new GraphQLObjectType({
     },
     message: {
       type: new GraphQLNonNull(message),
-      description: "Get message by id",
+      description: "Get a message by id",
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
       },
@@ -224,7 +222,7 @@ const Mutation = new GraphQLObjectType({
   fields: {
     addChannel: {
       type: channel,
-      description: "Add channel",
+      description: "Add a new channel",
       args: {
         Name: { type: new GraphQLNonNull(GraphQLString) },
         Users: { type: new GraphQLList(GraphQLID) },
@@ -241,7 +239,7 @@ const Mutation = new GraphQLObjectType({
     },
     modifyChannel: {
       type: channel,
-      description: "Modify channel",
+      description: "Modify an existing channel",
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
         Name: { type: GraphQLString },
@@ -261,7 +259,7 @@ const Mutation = new GraphQLObjectType({
     },
     addUserToChannel: {
       type: channel,
-      description: "Add an user to the channel",
+      description: "Add an user to the Users list of channel object ",
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
         User: { type: new GraphQLNonNull(GraphQLID) },
@@ -281,7 +279,7 @@ const Mutation = new GraphQLObjectType({
     },
     removeUserFromChannel: {
       type: channel,
-      description: "Remove an user from the channel",
+      description: "Remove an user from Users list of the channel object",
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
         User: { type: new GraphQLNonNull(GraphQLID) },
@@ -301,7 +299,7 @@ const Mutation = new GraphQLObjectType({
     },
     addMessageToChannel: {
       type: channel,
-      description: "Add a message to the channel",
+      description: "Add a message to the Messages list of the channel object",
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
         Message: { type: new GraphQLNonNull(GraphQLID) },
@@ -321,7 +319,7 @@ const Mutation = new GraphQLObjectType({
     },
     deleteChannel: {
       type: channel,
-      description: "Delete channel",
+      description: "Delete an existing channel",
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
       },
@@ -336,7 +334,7 @@ const Mutation = new GraphQLObjectType({
     },
     addUser: {
       type: user,
-      description: "Add user",
+      description: "Add a new user",
       args: {
         Name: { type: new GraphQLNonNull(GraphQLString) },
       },
@@ -352,7 +350,7 @@ const Mutation = new GraphQLObjectType({
     },
     modifyUser: {
       type: user,
-      description: "Modify user",
+      description: "Modify an existing user",
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
         Name: { type: new GraphQLNonNull(GraphQLString) },
@@ -371,7 +369,7 @@ const Mutation = new GraphQLObjectType({
     },
     addChannelToUser: {
       type: channel,
-      description: "Add a channel to an user",
+      description: "Add a channel to the Channels list of an user",
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
         Channel: { type: new GraphQLNonNull(GraphQLID) },
@@ -391,7 +389,7 @@ const Mutation = new GraphQLObjectType({
     },
     removeChannelFromUser: {
       type: channel,
-      description: "Remove a channel from an user",
+      description: "Remove a channel from the Channels list of an user",
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
         Channel: { type: new GraphQLNonNull(GraphQLID) },
@@ -411,7 +409,7 @@ const Mutation = new GraphQLObjectType({
     },
     addMessageToUser: {
       type: channel,
-      description: "Add a message to an user",
+      description: "Add a message to the Messages list of an user",
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
         Message: { type: new GraphQLNonNull(GraphQLID) },
@@ -451,7 +449,7 @@ const Mutation = new GraphQLObjectType({
     },
     deleteUser: {
       type: user,
-      description: "Delete user",
+      description: "Delete an existing user",
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
       },
@@ -466,7 +464,7 @@ const Mutation = new GraphQLObjectType({
     },
     addMessage: {
       type: message,
-      description: "Add message",
+      description: "Add a new message",
       args: {
         From: { type: new GraphQLNonNull(GraphQLID) },
         To: { type: new GraphQLNonNull(GraphQLID) },
@@ -484,7 +482,7 @@ const Mutation = new GraphQLObjectType({
     },
     modifyMessage: {
       type: message,
-      description: "Modify message",
+      description: "Modify an existing message",
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
         Content: { type: GraphQLString },
@@ -502,7 +500,7 @@ const Mutation = new GraphQLObjectType({
     },
     deleteMessage: {
       type: message,
-      description: "Delete message",
+      description: "Delete an existing message",
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
       },

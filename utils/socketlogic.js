@@ -1,3 +1,8 @@
+// There are situations where chat.js is unable to handle events,
+// such as when user suddenly disconnects. This js is the server
+// side logic for database communication without GraphQL. This is
+// used to prevent zombie users in channel userlists, for example
+
 "use strict";
 
 const apiURL = "./graphql";
@@ -108,6 +113,7 @@ const addMessageToChannel = async (channelid, messageid) => {
   }
 };
 
+module.exports.delUser = delUser;
 module.exports.addImageMessage = addImageMessage;
 module.exports.removeUserFromChannel = removeUserFromChannel;
 module.exports.removeChannelFromUser = removeChannelFromUser;
