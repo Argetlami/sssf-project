@@ -60,7 +60,7 @@ $ node server.js
 listening on port 3000
 Database connected successfully.
 ```
-If the system prints something else, fix accordingly. The front-end can be accessed at [localhost:3000](http://localhost:3000) in a generic environment. GraphQL API can be accessed at [localhost:3000/GraphQL](http://localhost:3000/graphql)
+If the system prints something else, fix accordingly. The front-end can be accessed at [localhost:3000](http://localhost:3000) in a generic environment. GraphQL API can be accessed at [localhost:3000/graphql](http://localhost:3000/graphql)
 
 ## License
 
