@@ -66,12 +66,13 @@
     };
     try {
       const data = await fetchGraphql(query);
-      console.log("getName: ", data);
+      console.log("Checking if you are in DB...");
       name = data.username.Name;
     } catch (e) {
+      console.log("You are not in DB, running add");
       name = await addUserName();
     }
-    console.log("getUserName name: " + name);
+    console.log("DB entry available for", name);
     return name;
   };
 
@@ -92,13 +93,12 @@
     };
     try {
       const data = await fetchGraphql(query);
-      console.log("getName: ", data);
       id = data.username.id;
     } catch (e) {
       await addUserName();
       id = await getUserId();
     }
-    console.log("getUserId id: " + id);
+    console.log("Your ID in DB:", id);
     return id;
   };
 
@@ -116,6 +116,7 @@
     };
     const data = await fetchGraphql(query);
     name = data.addUser.Name;
+    console.log("Created DB entry for you", name);
     userid = await getUserName();
     return name;
   };
@@ -150,7 +151,7 @@
 
   // fetch messages via channel from graphql API
   const fetchChannel = async () => {
-    console.log("fetchChannel currentChannelid:", currentChannelid);
+    console.log("Fetching all messages from " + currentChannelid);
     const channelquery = {
       query: `{
         channel(id: "${currentChannelid}") {
@@ -172,14 +173,12 @@
       }
         `,
     };
-    console.log("- - fetchChannel query below - - ");
-    console.log(channelquery);
     const data = await fetchGraphql(channelquery);
-    console.log("* * fetchChannel data below * *");
-    console.log(data);
+    console.log("Fetching a channel", data)
     data.channel.Messages.forEach((type) => {
       const item = document.createElement("li");
       if (type.Content.startsWith("data:image")) {
+        console.log("A message started with 'data:image', including <img> tags to it")
         item.innerHTML = `<b>${type.From.Name}</b>: <img src="${type.Content}" alt="image sent by ${type.From.Name}" width="70%"/>`;
       } else {
         item.innerHTML = `<b>${type.From.Name}</b>: ${type.Content}`;
@@ -190,7 +189,6 @@
 
   // fetch latest message from graphql API
   const fetchNew = async () => {
-    console.log("fetchChannel currentChannelid:", currentChannelid);
     const channelquery = {
       query: `{
         channel(id: "${currentChannelid}") {
@@ -212,14 +210,12 @@
       }
       `,
     };
-    console.log("- - fetchChannel query below - - ");
-    console.log(channelquery);
+    console.log("Fetching the new message");
     const data = await fetchGraphql(channelquery);
-    console.log("* * fetchChannel data below * *");
-    console.log(data);
     let latest = data.channel.Messages.pop();
     const item = document.createElement("li");
     if (latest.Content.startsWith("data:image")) {
+      console.log("A message started with 'data:image', including <img> tags to it")
       item.innerHTML = `<b>${latest.From.Name}</b>: <img src="${latest.Content}" alt="image sent by ${latest.From.Name}" width="70%"/>`;
     } else {
       item.innerHTML = `<b>${latest.From.Name}</b>: ${latest.Content}`;
@@ -262,9 +258,8 @@
       `,
     };
     const data = await fetchGraphql(query);
-    console.log("addChannel: ", data.addChannel);
     channelid = data.addChannel.id;
-    console.log("channelid in addChannel(): ", channelid);
+    console.log("A new channel " + channelname + " was now created with ID " + channelid);
     return channelid;
   };
 
@@ -281,10 +276,12 @@
     };
     try {
       const data = await fetchGraphql(query);
-      console.log("getChannelid: ", data);
+      console.log("Channel info:", data);
       channelid = data.channelname.id;
     } catch (e) {
-      console.error("getChannelid channel not found: " + e);
+      console.log("The error here is in a catch{} of a try{}, merely indicating that there is no channel with this name.")
+      console.error("This error is a console.error() entry for the internal server error above. This is probably 'cannot read property channelname, as the channel doesnt yet exist", e);
+      console.log("Therefore calling the creation of the channel" + channelname + "now...")
       channelid = await addChannel(channelname);
     }
     return channelid;
@@ -306,7 +303,7 @@
       `,
     };
     const data = await fetchGraphql(query);
-    console.log("addUserToChannel: ", data);
+    console.log("An user ID reference was added to the channel object");
     return data;
   };
 
@@ -326,7 +323,7 @@
       `,
     };
     const data = await fetchGraphql(query);
-    console.log("removeUserFromChannel: ", data);
+    console.log("An user ID reference was removed from the channel object");
     return data;
   };
 
@@ -342,9 +339,8 @@
       }
       `,
     };
-    console.log(query);
     const data = await fetchGraphql(query);
-    console.log("addChannelToUser: ", data);
+    console.log("An channel ID reference was added to the user object")
     return data;
   };
 
@@ -361,7 +357,7 @@
       `,
     };
     const data = await fetchGraphql(query);
-    console.log("removeChannelFromUser: ", data);
+    console.log("An user ID reference was removed from the channel object");
     return data;
   };
 
@@ -381,7 +377,7 @@
         `,
     };
     const data = await fetchGraphql(query);
-    console.log("addMessageToUser: ", data);
+    console.log("A message ID reference was added to the user object");
     return data;
   };
 
@@ -401,7 +397,7 @@
         `,
     };
     const data = await fetchGraphql(query);
-    console.log("addMessageToChannel: ", data);
+    console.log("A message ID reference was added to the channel object");
     return data;
   };
 
@@ -423,7 +419,7 @@
         `,
     };
     const data = await fetchGraphql(query);
-    console.log("addMessage: ", data);
+    console.log("Created new message:", data);
     return data.addMessage.id;
   };
 
@@ -471,7 +467,6 @@
   const encodeImageAndSend = (element) => {
     const reader = new FileReader();
     reader.onloadend = () => {
-      console.log(reader.result);
       if (reader.result.startsWith("data:image")) {
         imageMessage(reader.result);
       } else {
@@ -522,13 +517,10 @@
   const setOwnName = async () => {
     username = await addUserName();
     userid = await getUserId();
-    console.log("username: ", username);
-    console.log("userid: ", userid);
   };
 
   // Add message to database and make socket broadcast to update messages
   const sendMessage = async (content) => {
-    console.log("sendMessage content:", content);
     const messageid = await addMessage(content);
     await addMessageToUser(messageid);
     await addMessageToChannel(messageid);
@@ -538,6 +530,7 @@
   // Add base64-encoded image to database and make socket
   // broadcast to update messages
   const imageMessage = async (messagecontent) => {
+    console.log("Attached file was <10MB and was image, base64-encoded the file and attached to a message")
     socket.emit(
       "send image message",
       userid,
@@ -554,7 +547,7 @@
 
   // Command logic
   socket.on("command", async (msg) => {
-    console.log("command issued: " + msg);
+    console.log("Command issued: " + msg);
     if (msg.startsWith("/join ")) {
       if (currentChannelid == "") {
         let newchannel = msg.replace("/join ", "");
@@ -584,7 +577,7 @@
 
   // Fetch latest message when called by socket event
   socket.on("chat message", (user, channel, msg) => {
-    console.log("fetching new message");
+    console.log("Socket.io call for a new message received!")
     fetchNew();
   });
 
@@ -603,6 +596,7 @@
   // Update userlist of channel when called by socket event
   socket.on("userlist change", () => {
     if (currentChannelid != "") {
+      console.log("Socket.io call for an userlist change received!")
       fetchUsers();
     }
   });
