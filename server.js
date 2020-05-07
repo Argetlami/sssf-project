@@ -10,7 +10,7 @@ const graphqlHTTP = require("express-graphql");
 const MyGraphQLSchema = require("./schema/schema");
 const socketlogic = require("./utils/socketlogic");
 const cors = require("cors");
-const helmet = require('helmet');
+const helmet = require("helmet");
 
 app.use(cors());
 app.use(helmet());
@@ -18,19 +18,19 @@ app.use(helmet());
 app.use(express.static("public"));
 
 const makeid = (length) => {
-  var result           = '';
-  var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  var result = "";
+  var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   var charactersLength = characters.length;
-  for ( var i = 0; i < length; i++ ) {
-     result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
-}
+};
 
 // custom id with "anonXXXXXX" syntax
 io.engine.generateId = (req) => {
   return "anon" + makeid(6);
-}
+};
 
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
@@ -56,12 +56,18 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("send image message", async (user, channelid, channelname, messagecontent) => {
+  socket.on(
+    "send image message",
+    async (user, channelid, channelname, messagecontent) => {
       console.log("sent image message: " + user + " @ " + channelname);
-      const messageid = await socketlogic.addImageMessage(user, channelid, messagecontent);
+      const messageid = await socketlogic.addImageMessage(
+        user,
+        channelid,
+        messagecontent
+      );
       io.to(channelname).emit("chat message");
-    
-  });
+    }
+  );
 
   socket.on("join", (user, channel) => {
     console.log("user " + user + " joined channel " + channel);
@@ -86,13 +92,13 @@ io.on("connection", (socket) => {
   });
 });
 
-app.use("/graphql", (req, res) => {
+app.use(
+  "/graphql",
   graphqlHTTP({
     schema: MyGraphQLSchema,
     graphiql: true,
-    context: { req, res },
-  })(req, res);
-});
+  })
+);
 
 http.listen(3000, () => {
   console.log("listening on port 3000");

@@ -227,7 +227,7 @@ const Mutation = new GraphQLObjectType({
         Name: { type: new GraphQLNonNull(GraphQLString) },
         Users: { type: new GraphQLList(GraphQLID) },
       },
-      resolve: async (parent, args, { req, res }) => {
+      resolve: async (parent, args) => {
         try {
           const newChannel = new channelModel(args);
           return await newChannel.save();
@@ -246,7 +246,7 @@ const Mutation = new GraphQLObjectType({
         Users: { type: new GraphQLList(GraphQLID) },
         Messages: { type: new GraphQLList(GraphQLID) },
       },
-      resolve: async (parent, args, { req, res }) => {
+      resolve: async (parent, args) => {
         try {
           return await channelModel.findByIdAndUpdate(args.id, args, {
             new: true,
@@ -264,7 +264,7 @@ const Mutation = new GraphQLObjectType({
         id: { type: new GraphQLNonNull(GraphQLID) },
         User: { type: new GraphQLNonNull(GraphQLID) },
       },
-      resolve: async (parent, args, { req, res }) => {
+      resolve: async (parent, args) => {
         try {
           return await channelModel.findByIdAndUpdate(
             args.id,
@@ -284,7 +284,7 @@ const Mutation = new GraphQLObjectType({
         id: { type: new GraphQLNonNull(GraphQLID) },
         User: { type: new GraphQLNonNull(GraphQLID) },
       },
-      resolve: async (parent, args, { req, res }) => {
+      resolve: async (parent, args) => {
         try {
           return await channelModel.findByIdAndUpdate(
             args.id,
@@ -304,7 +304,7 @@ const Mutation = new GraphQLObjectType({
         id: { type: new GraphQLNonNull(GraphQLID) },
         Message: { type: new GraphQLNonNull(GraphQLID) },
       },
-      resolve: async (parent, args, { req, res }) => {
+      resolve: async (parent, args) => {
         try {
           return await channelModel.findByIdAndUpdate(
             args.id,
@@ -323,7 +323,7 @@ const Mutation = new GraphQLObjectType({
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
       },
-      resolve: async (parent, args, { req, res }) => {
+      resolve: async (parent, args) => {
         try {
           return await channelModel.findByIdAndDelete(args.id);
         } catch (e) {
@@ -338,7 +338,7 @@ const Mutation = new GraphQLObjectType({
       args: {
         Name: { type: new GraphQLNonNull(GraphQLString) },
       },
-      resolve: async (parent, args, { req, res }) => {
+      resolve: async (parent, args) => {
         try {
           const newUser = new userModel(args);
           return await newUser.save();
@@ -356,7 +356,7 @@ const Mutation = new GraphQLObjectType({
         Name: { type: new GraphQLNonNull(GraphQLString) },
         Channels: { type: new GraphQLList(GraphQLID) },
       },
-      resolve: async (parent, args, { req, res }) => {
+      resolve: async (parent, args) => {
         try {
           return await userModel.findByIdAndUpdate(args.id, args, {
             new: true,
@@ -374,7 +374,7 @@ const Mutation = new GraphQLObjectType({
         id: { type: new GraphQLNonNull(GraphQLID) },
         Channel: { type: new GraphQLNonNull(GraphQLID) },
       },
-      resolve: async (parent, args, { req, res }) => {
+      resolve: async (parent, args) => {
         try {
           return await userModel.findByIdAndUpdate(
             args.id,
@@ -394,7 +394,7 @@ const Mutation = new GraphQLObjectType({
         id: { type: new GraphQLNonNull(GraphQLID) },
         Channel: { type: new GraphQLNonNull(GraphQLID) },
       },
-      resolve: async (parent, args, { req, res }) => {
+      resolve: async (parent, args) => {
         try {
           return await userModel.findByIdAndUpdate(
             args.id,
@@ -414,7 +414,7 @@ const Mutation = new GraphQLObjectType({
         id: { type: new GraphQLNonNull(GraphQLID) },
         Message: { type: new GraphQLNonNull(GraphQLID) },
       },
-      resolve: async (parent, args, { req, res }) => {
+      resolve: async (parent, args) => {
         try {
           return await userModel.findByIdAndUpdate(
             args.id,
@@ -434,7 +434,7 @@ const Mutation = new GraphQLObjectType({
         id: { type: new GraphQLNonNull(GraphQLID) },
         Channel: { type: new GraphQLNonNull(GraphQLID) },
       },
-      resolve: async (parent, args, { req, res }) => {
+      resolve: async (parent, args) => {
         try {
           return await userModel.findByIdAndUpdate(
             args.id,
@@ -453,7 +453,7 @@ const Mutation = new GraphQLObjectType({
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
       },
-      resolve: async (parent, args, { req, res }) => {
+      resolve: async (parent, args) => {
         try {
           return await userModel.findByIdAndDelete(args.id);
         } catch (e) {
@@ -470,7 +470,7 @@ const Mutation = new GraphQLObjectType({
         To: { type: new GraphQLNonNull(GraphQLID) },
         Content: { type: GraphQLString },
       },
-      resolve: async (parent, args, { req, res }) => {
+      resolve: async (parent, args) => {
         try {
           const newMessage = new messageModel(args);
           return await newMessage.save();
@@ -487,7 +487,7 @@ const Mutation = new GraphQLObjectType({
         id: { type: new GraphQLNonNull(GraphQLID) },
         Content: { type: GraphQLString },
       },
-      resolve: async (parent, args, { req, res }) => {
+      resolve: async (parent, args) => {
         try {
           return await messageModel.findByIdAndUpdate(args.id, args, {
             new: true,
@@ -504,7 +504,7 @@ const Mutation = new GraphQLObjectType({
       args: {
         id: { type: new GraphQLNonNull(GraphQLID) },
       },
-      resolve: async (parent, args, { req, res }) => {
+      resolve: async (parent, args) => {
         try {
           return await messageModel.findByIdAndDelete(args.id);
         } catch (e) {
