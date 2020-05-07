@@ -52,14 +52,14 @@ io.on("connection", (socket) => {
       );
     } else {
       console.log("sent message: " + user + " @ " + channel + ": " + msg);
-      io.to(channel).emit("chat message", user, channel, msg);
+      io.to(channel).emit("chat message");
     }
   });
 
   socket.on("send image message", async (user, channelid, channelname, messagecontent) => {
       console.log("sent image message: " + user + " @ " + channelname);
       const messageid = await socketlogic.addImageMessage(user, channelid, messagecontent);
-      io.to(channelname).emit("chat message", user, channelname, messageid);
+      io.to(channelname).emit("chat message");
     
   });
 

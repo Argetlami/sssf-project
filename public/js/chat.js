@@ -1,9 +1,9 @@
 (async () => {
   "use strict";
 
-//##################################
-//# DECLARATIONS ###################
-//##################################
+  //##################################
+  //# DECLARATIONS ###################
+  //##################################
 
   const apiURL = "./graphql";
   const socket = io();
@@ -23,11 +23,9 @@
   var currentChannelid = "";
   var currentChannelname = "";
 
-
   //##################################
   // GRAPHQL #########################
   //##################################
-  
 
   // general fetch from graphql API
   const fetchGraphql = async (query) => {
@@ -174,14 +172,17 @@
         `,
     };
     const data = await fetchGraphql(channelquery);
-    console.log("Fetching a channel", data)
+    console.log("Fetching a channel", data);
     data.channel.Messages.forEach((type) => {
       const item = document.createElement("li");
       if (type.Content.startsWith("data:image")) {
-        console.log("A message started with 'data:image', including <img> tags to it")
+        console.log(
+          "A message started with 'data:image', including <img> tags to it"
+        );
         item.innerHTML = `<b>${type.From.Name}</b>: <img src="${type.Content}" alt="image sent by ${type.From.Name}" width="70%"/>`;
       } else {
-        item.innerHTML = `<b>${type.From.Name}</b>: ${type.Content}`;
+        item.innerHTML = `<b>${type.From.Name}</b>: `;
+        item.innerText += `${type.Content}`;
       }
       messageList.appendChild(item);
     });
@@ -215,10 +216,13 @@
     let latest = data.channel.Messages.pop();
     const item = document.createElement("li");
     if (latest.Content.startsWith("data:image")) {
-      console.log("A message started with 'data:image', including <img> tags to it")
+      console.log(
+        "A message started with 'data:image', including <img> tags to it"
+      );
       item.innerHTML = `<b>${latest.From.Name}</b>: <img src="${latest.Content}" alt="image sent by ${latest.From.Name}" width="70%"/>`;
     } else {
-      item.innerHTML = `<b>${latest.From.Name}</b>: ${latest.Content}`;
+      item.innerHTML = `<b>${latest.From.Name}</b>: `;
+      item.innerText += `${latest.Content}`;
     }
     messageList.appendChild(item);
   };
@@ -259,7 +263,9 @@
     };
     const data = await fetchGraphql(query);
     channelid = data.addChannel.id;
-    console.log("A new channel " + channelname + " was now created with ID " + channelid);
+    console.log(
+      "A new channel " + channelname + " was now created with ID " + channelid
+    );
     return channelid;
   };
 
@@ -279,9 +285,16 @@
       console.log("Channel info:", data);
       channelid = data.channelname.id;
     } catch (e) {
-      console.log("The error here is in a catch{} of a try{}, merely indicating that there is no channel with this name.")
-      console.error("This error is a console.error() entry for the internal server error above. This is probably 'cannot read property channelname, as the channel doesnt yet exist", e);
-      console.log("Therefore calling the creation of the channel" + channelname + "now...")
+      console.log(
+        "The error here is in a catch{} of a try{}, merely indicating that there is no channel with this name."
+      );
+      console.error(
+        "This error is a console.error() entry for the internal server error above. This is probably 'cannot read property channelname, as the channel doesnt yet exist",
+        e
+      );
+      console.log(
+        "Therefore calling the creation of the channel" + channelname + "now..."
+      );
       channelid = await addChannel(channelname);
     }
     return channelid;
@@ -307,7 +320,7 @@
     return data;
   };
 
-  // pull an user from a channel 
+  // pull an user from a channel
   const removeUserFromChannel = async () => {
     const query = {
       query: `mutation {
@@ -327,7 +340,7 @@
     return data;
   };
 
-  // push channel to user 
+  // push channel to user
   const addChannelToUser = async () => {
     const query = {
       query: `mutation {
@@ -340,7 +353,7 @@
       `,
     };
     const data = await fetchGraphql(query);
-    console.log("An channel ID reference was added to the user object")
+    console.log("An channel ID reference was added to the user object");
     return data;
   };
 
@@ -423,11 +436,10 @@
     return data.addMessage.id;
   };
 
-  
   //#################################
   //# MESSAGING AND USER MANAGEMENT #
   //#################################
-  
+
   // Main messageform listener
   messageForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -530,7 +542,9 @@
   // Add base64-encoded image to database and make socket
   // broadcast to update messages
   const imageMessage = async (messagecontent) => {
-    console.log("Attached file was <10MB and was image, base64-encoded the file and attached to a message")
+    console.log(
+      "Attached file was <10MB and was image, base64-encoded the file and attached to a message"
+    );
     socket.emit(
       "send image message",
       userid,
@@ -538,12 +552,12 @@
       currentChannelname,
       messagecontent
     );
-    socket.emit("chat message", userid, currentChannelid, messagecontent);
+    socket.emit("chat message");
   };
 
-//##################################
-//# COMMAND CALLS AND SOCKET CALLS #
-//##################################
+  //##################################
+  //# COMMAND CALLS AND SOCKET CALLS #
+  //##################################
 
   // Command logic
   socket.on("command", async (msg) => {
@@ -557,7 +571,7 @@
         serverMessage("Please /leave from this channel before joining another");
       }
     } else if (msg.startsWith("/leave")) {
-      const oldchannel = currentChannelname
+      const oldchannel = currentChannelname;
       await leaveChannel();
       socket.emit("leave", username, oldchannel);
     } else if (msg.startsWith("/help")) {
@@ -576,12 +590,12 @@
   });
 
   // Fetch latest message when called by socket event
-  socket.on("chat message", (user, channel, msg) => {
-    console.log("Socket.io call for a new message received!")
+  socket.on("chat message", () => {
+    console.log("Socket.io call for a new message received!");
     fetchNew();
   });
 
-  // Non-broadcasted message 
+  // Non-broadcasted message
   socket.on("self message", (msg) => {
     const item = document.createElement("li");
     item.innerHTML = msg;
@@ -596,9 +610,8 @@
   // Update userlist of channel when called by socket event
   socket.on("userlist change", () => {
     if (currentChannelid != "") {
-      console.log("Socket.io call for an userlist change received!")
+      console.log("Socket.io call for an userlist change received!");
       fetchUsers();
     }
   });
-
 })();
