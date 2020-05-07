@@ -37,7 +37,6 @@ io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
   socket.emit("set user");
   socket.on("disconnect", async () => {
-    //socketlogic.delUser(socket.id); // delUser breaks message references
     await socketlogic.removeUserFromChannel(socket.id);
     await socketlogic.removeChannelFromUser(socket.id);
     io.emit("userlist change");
