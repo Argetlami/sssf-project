@@ -18,11 +18,10 @@ As this is a school project, a loosely predefined set of tools were used. The au
 
 ### Missing features and current set of problems
 
-- All encryption is missing, could not get the HTTPS work with socket.io
-- Due to the missing HTTPS, there are no [service workers](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API)
+- There are no [service workers](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API)
 - Due to the missing service workers, there are no desktop-notifications nor other form of push-notifications.
 - Due to the missing service workers and push-notifications, PWA is only theoretically implemented, as in without a service worker.
-- Due to the missing HTTPS, actual registration and authentication implementation would put all its users in risk of leaking their user credentials
+- There currently is no way to change username / register / authenticate
 
 ## Requirements
 - [MongoDB](https://www.mongodb.com/download-center/community) v4.2.6 or higher (for the database)
